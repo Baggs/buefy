@@ -26,8 +26,13 @@
                 </li>
             </ul>
         </nav>
-        <section class="tab-content">
-            <slot/>
+        <section class="tab-content" :class="{'is-transitioning': isTransitioning}">
+            <transition
+                :name="transitionName"
+                @before-enter="isTransitioning = true"
+                @after-enter="isTransitioning = false">
+                <slot/>
+            </transition>
         </section>
     </div>
 </template>
@@ -58,7 +63,8 @@
                 activeTab: this.value || 0,
                 tabItems: [],
                 contentHeight: 0,
-                _isTabs: true // Used internally by TabItem
+                _isTabs: true, // Used internally by TabItem
+                isTransitioning: false
             }
         },
         computed: {
@@ -98,8 +104,8 @@
             changeTab(newIndex) {
                 if (this.activeTab === newIndex) return
 
-                this.tabItems[this.activeTab].deactivate(this.activeTab, newIndex)
-                this.tabItems[newIndex].activate(this.activeTab, newIndex)
+                this.deactivate(this.activeTab, newIndex)
+                this.activate(this.activeTab, newIndex)
                 this.activeTab = newIndex
                 this.$emit('change', newIndex)
             },
@@ -110,6 +116,34 @@
             tabClick(value) {
                 this.$emit('input', value)
                 this.changeTab(value)
+            },
+
+             /**
+             * Activate tab, alter animation name based on the index.
+             */
+            activate(oldIndex, index) {
+                if (!this.animated) {
+                    this.transitionName = null
+                } else {
+                    this.transitionName = index < oldIndex
+                        ? 'slide-next'
+                        : 'slide-prev'
+                }
+                this.tabItems[index].isActive = true
+            },
+
+            /**
+             * Deactivate tab, alter animation name based on the index.
+             */
+            deactivate(oldIndex, index) {
+                if (!this.animated) {
+                    this.transitionName = null
+                } else {
+                    this.transitionName = index < oldIndex
+                        ? 'slide-next'
+                        : 'slide-prev'
+                }
+                this.tabItems[oldIndex].isActive = false
             }
         },
         mounted() {

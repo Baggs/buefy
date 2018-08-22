@@ -1,9 +1,7 @@
 <template>
-    <transition :name="transitionName">
-        <div v-show="isActive && visible" class="tab-item">
-            <slot/>
-        </div>
-    </transition>
+    <div v-show="isActive && visible" class="tab-item">
+        <slot/>
+    </div>
 </template>
 
 <script>
@@ -23,35 +21,6 @@
             return {
                 isActive: false,
                 transitionName: null
-            }
-        },
-        methods: {
-            /**
-             * Activate tab, alter animation name based on the index.
-             */
-            activate(oldIndex, index) {
-                if (!this.$parent.animated) {
-                    this.transitionName = null
-                } else {
-                    this.transitionName = index < oldIndex
-                        ? 'slide-next'
-                        : 'slide-prev'
-                }
-                this.isActive = true
-            },
-
-            /**
-             * Deactivate tab, alter animation name based on the index.
-             */
-            deactivate(oldIndex, index) {
-                if (!this.$parent.animated) {
-                    this.transitionName = null
-                } else {
-                    this.transitionName = index < oldIndex
-                        ? 'slide-next'
-                        : 'slide-prev'
-                }
-                this.isActive = false
             }
         },
         created() {
